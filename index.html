@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="htmx-config" content='{"globalViewTransitions":"true"}'>
+        <title id="title">[TCCB] Đăng nhập</title>
+        <link rel="stylesheet" href="/css/login.css">
+        <script defer src="/js/alpine.min.js"></script>
+    </head>
+    <body hx-ext="multi-swap,preload">
+        <main class="bg-[#f0f4f9] w-full h-auto font-sans font-[400] text-slate-700 flex flex-col justify-center items-center relative text-center text-sm">
+            <div id="boder" class="transition-none bg-[#f0f4f9] relative w-full h-screen flex flex-col justify-center items-center">
+                <div class="transition-none relative bg-white w-[400px] h-[450px] flex flex-col justify-center items-center rounded-xl shadow-lg">
+                    <div class="transition-none w-full text-3xl font-[700] absolute left-[50%] translate-x-[-50%] top-[15%] cursor-pointer">Đăng nhập</div>
+                    <a class="transition-none w-[350px] h-[60px] rounded-lg shadow-[0_3px_8px_-1px_rgba(0,0,0,0.24)] cursor-pointer flex flex-row justify-center items-center active:translate-y-[4px] active:shadow-none" href="/api/login/google">
+                        <img width="45" height="45" src="/img/google_icon.svg" class="w-auto h-[80%]" alt="login by google">
+                        <div class="transition-none w-full h-full flex flex-row justify-center items-center">
+                            <p class="transition-none font-[500] text-gray-600">Đăng Nhập Với Email Trường</p>
+                        </div>
+                    </a>
+                    <div class="transition-none w-full absolute left-[50%] translate-x-[-50%] bottom-[15%] flex flex-row justify-center items-center">
+                        <p>Bạn chưa có tài khoản?&nbsp;</p>
+                        <a href="mailto:nguyennhatnam@hcmussh.edu.vn" class="transition-none text-sky-600 underline">Liên hệ hỗ trợ</a>
+                    </div>
+                </div>
+            </div>
+            <footer id="footer" x-data="{ open: false }" @mouseleave="open = false" class="w-auto h-[40px] fixed bottom-0 right-0 z-[998] flex flex-row items-center">
+                <div x-show="open" 
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 translate-x-[50px] scale-90"
+                x-transition:enter-end="opacity-100 translate-x-[10px] scale-100"
+                x-transition:leave="transition ease-in duration-100"
+                x-transition:leave-start="opacity-100 translate-x-[10px] scale-100"
+                x-transition:leave-end="opacity-0 translate-x-[50px] scale-90"
+                class="h-[40px] pr-[10px] z-[995] bg-gray-200 flex flex-row justify-center items-center translate-x-[10px] rounded-tl-xl">
+                    <div class="pl-[20px] pr-[20px]">Made by ©️Nam Nguyen</div>
+                </div>
+                <div @mouseover="open = true" class="w-[60px] h-[40px] bg-[#ff4b4b] hover:bg-[#ff6c6c] rounded-tl-lg flex flex-row justify-center items-center z-[996]">
+                    <svg width="30" height="15" viewBox="0 0 303 165" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M151.478 102.737L98.4421 74.7024L6.37999 26.0452C6.29595 25.9612 6.12789 25.9612 6.04385 25.9612C2.68239 24.3645 -0.763116 27.7259 0.497434 31.0874L47.4067 150.73L47.4151 150.756C47.4655 150.873 47.5075 150.991 47.558 151.109C49.4824 155.571 53.6842 158.327 58.2558 159.411C58.6424 159.495 58.919 159.572 59.3831 159.664C59.845 159.767 60.4912 159.907 61.0458 159.949C61.1383 159.958 61.2223 159.958 61.3148 159.966H61.382C61.4492 159.974 61.5164 159.974 61.5837 159.983H61.6761C61.7349 159.991 61.8022 159.991 61.861 159.991H61.9702C62.0375 160 62.1047 160 62.1719 160V160C121.295 166.446 181.803 166.446 240.926 160V160C241.641 160 242.338 159.966 243.01 159.899C243.229 159.874 243.439 159.848 243.649 159.823C243.674 159.815 243.708 159.815 243.733 159.806C243.876 159.79 244.019 159.764 244.162 159.739C244.372 159.714 244.582 159.672 244.792 159.63C245.212 159.537 245.403 159.47 245.973 159.274C246.543 159.078 247.49 158.736 248.083 158.45C248.675 158.164 249.086 157.89 249.582 157.579C250.196 157.193 250.779 156.797 251.371 156.354C251.626 156.158 251.801 156.033 251.986 155.857L251.885 155.798L151.478 102.737Z" fill="#FAFAFA"></path><path d="M296.729 26.0464H296.645L204.549 74.7036L255.744 150.95L302.536 31.0886V30.9205C303.712 27.391 300.098 24.1976 296.729 26.0464" fill="#A3A8B8"></path><path d="M156.386 2.91088C154.033 -0.526222 148.906 -0.526222 146.638 2.91088L98.4424 74.7035L151.478 102.738L251.986 155.857C252.617 155.239 253.123 154.637 253.658 154.001C254.415 153.068 255.121 152.068 255.742 150.95L204.547 74.7035L156.386 2.91088Z" fill="#D5DAE5"></path></svg>
+                </div>
+            </footer>
+        </main>
+    </body>
+</html>
