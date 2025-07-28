@@ -1,0 +1,174 @@
+<div class="w-full h-full flex flex-col bg-gradient-to-br from-gray-900 to-gray-800 p-4" x-data="practice" @keyup.enter.window="submitAnswer()">
+    <!-- Header -->
+    
+    <div x-data="{calcPercentage(min, max, val){return ((val-min)/(max-min))*100}}"
+         class="flex h-[6px] w-full overflow-hidden rounded-lg bg-slate-100" role="progressbar"
+         aria-label="default progress bar" 
+         x-bind:aria-valuenow="current.value" x-bind:aria-valuemin="0" x-bind:aria-valuemax="maxPoint">
+        <div class="h-full rounded-lg bg-yellow-500 transition-all transition-discrete duration-600 ease-in flex justify-center"
+             x-bind:style="`width: ${calcPercentage(0, maxPoint, current.value)}%`">
+            <div class="h-[30%] w-full mx-[10px] mt-[2px] bg-yellow-300 rounded-lg"></div>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center w-full h-[10%] gap-4 mb-4">
+        <h1 x-text="getTitle('ask')" class="text-2xl font-bold text-gray-200 cursor-default"></h1>
+        <a href="/" class="text-red-400 hover:text-red-300 transition">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </a>
+    </div>
+
+    <!-- Audio Question -->
+    <div x-show="current.mode == 'listen'" class="w-full h-[20%] min-h-[100px] flex items-center justify-center bg-gray-800/50 rounded-xl p-4 mb-4">
+        <div class="flex items-center w-full max-w-2xl">
+            <button @click="togglePlay()" class="mr-6 focus:outline-none group" :disabled="status !== 'done'">
+                <i :class="iswaveplay ? 'fa-circle-pause' : 'fa-circle-play'" 
+                   class="fa-solid text-4xl md:text-4xl text-green-500 group-hover:text-green-400 transition-all duration-300 transform group-hover:scale-110"
+                   :class="{'opacity-50': status !== 'done'}">
+                </i>
+            </button>
+            
+            <div x-show="status=='done'" class="w-full">
+                <div id="waveform" class="h-15"></div>
+            </div>
+            
+            <div x-show="status=='loading'" class="flex justify-center w-full">
+                <div class="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+
+            <div x-show="status=='error'" class="text-red-400 text-sm">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                <span>Lỗi tải audio</span>
+            </div>
+        </div>
+    </div>
+    <!-- Text Question -->
+    <div x-show="current.mode == 'translate'" class="w-full basis-[20%] flex gap-[15px]">
+        <div class="flex gap-3 w-full">
+            <img class="size-[32px] rounded-full object-cover" src="/img/avatar.png" alt="avatar" />
+            <div x-show="status=='done'" class="flex items-end gap-[10px] h-fit w-full">
+                <div class="h-fit flex max-w-[90%] flex-col gap-2 rounded-r-lg rounded-bl-lg bg-slate-100 p-4 text-slate-700">
+                    <div class="text-[17px] font-[500]" x-text="currentSentence.vi"></div>
+                </div>
+            </div>
+            <div x-show="status=='loading'" class="mt-[15px] flex gap-1">
+                <span class="size-1.5 rounded-full  motion-safe:animate-[bounce_1s_ease-in-out_infinite] bg-gray-300"></span>
+                <span class="size-1.5 rounded-full  motion-safe:animate-[bounce_0.5s_ease-in-out_infinite] bg-gray-300"></span>
+                <span class="size-1.5 rounded-full  motion-safe:animate-[bounce_1s_ease-in-out_infinite] bg-gray-300"></span>
+            </div>
+            <div x-show="status=='error'" class="text-red-400 text-sm">
+                <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                <span>Lỗi tải audio</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Input Area -->
+    <div class="w-full h-[20%] flex justify-center items-center mb-4">
+        <textarea x-trap="!isCorrect && status=='done'"
+                  x-model="userInput"
+                  :disabled="isCorrect"
+                  :placeholder="getTitle('placeholder')"
+                  autocomplete="off"
+                  :class="showAnswer || status=='loading' ? 'bg-gray-700/50' : 'bg-gray-800/70'"
+                  class="w-full h-full border border-gray-600 rounded-2xl p-4 text-xl text-gray-200 font-semibold 
+                         focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder-gray-400 resize-none no-scrollbar"
+                  @input.debounce="if (repeatDelay > 0) check();">
+        </textarea>
+    </div>
+
+    <!-- Result Area -->
+    <div class="w-full h-[40%] flex justify-center items-center mb-4">
+        <div x-show="showAnswer"
+             x-transition
+             :class="isgiveup ? 'bg-red-900/90' : (isCorrect ? 'bg-green-900/90' : 'bg-yellow-200')"
+             class="w-full h-[90%] p-6 rounded-3xl flex justify-between items-start gap-4 backdrop-blur-sm overflow-auto no-scrollbar">
+            <!-- Phần nội dung -->
+            <div class="flex-1 min-w-0 break-words overflow-x-hidden">
+                <!-- Khi chưa đúng -->
+                <div x-show="!isCorrect" class="space-y-2">
+                    <div class="flex flex-wrap gap-2 text-xl font-semibold text-gray-100" x-html="ur"></div>
+                    <div class="flex flex-wrap gap-2 text-sm text-yellow-700" x-html="cr"></div>
+                </div>
+                
+                <!-- Khi đã đúng -->
+                <div x-show="isCorrect" class="space-y-2">
+                    <div class="text-xl font-semibold text-white" x-text="currentSentence.en"></div>
+                    <div class="text-sm text-gray-200/90" x-text="currentSentence.vi"></div>
+                </div>
+            </div>
+            
+            <!-- Phần icon bên phải -->
+            <div x-show="isCorrect" class="flex flex-col items-center gap-4 h-full">
+                <i x-show="!isgiveup" class="fa-solid fa-circle-check text-3xl text-emerald-300"></i>
+                <i x-show="isgiveup" class="fa-solid fa-circle-xmark text-3xl text-red-300"></i>
+                <!-- audio -->
+                <div x-show="current.mode == 'translate'" @click="togglePlay()" 
+                        class="focus:outline-none group cursor-pointer" :disabled="status !== 'done'">
+                    <i :class="iswaveplay ? 'fa-volume-high' : 'fa-volume-low'" 
+                        class="fa-solid text-xl text-gray-300 group-hover:text-gray-200 transition-all duration-300 transform group-hover:scale-110"
+                        :class="{'opacity-50': status !== 'done'}">
+                    </i>
+                </div>
+                <div id="waveformanswer" class="hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Button -->
+    <div class="w-full h-[10%] max-h-[50px] flex justify-center items-center gap-3">
+        <i @click="openSettings()" 
+           class="fa-solid fa-gear text-gray-200 text-2xl cursor-pointer hover:rotate-45 transition-all duration-300"></i>
+        <div @click="isCorrect ? next() : submitAnswer()"
+                :class="showAnswer ? (isCorrect ? (isgiveup ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700') : 'bg-yellow-500 hover:bg-yellow-600') : 'bg-blue-600 hover:bg-blue-700'"
+                class="w-full h-full text-white text-xl font-semibold rounded-full cursor-pointer
+                       shadow-lg hover:shadow-xl transition-all duration-100 flex items-center justify-center">
+            <span x-text="isCorrect ? 'Tiếp theo' : 'Kiểm tra'"></span>
+        </div>
+        <i x-show="!isCorrect && showAnswer" 
+           @click="giveup()" 
+           class="fa-solid fa-arrow-right-from-bracket text-red-500 hover:text-red-400 text-xl cursor-pointer transition-all duration-300 "
+           title="Bỏ qua"></i>
+    </div>
+
+    <!-- Settings Popup -->
+    <div x-show="showSettings" 
+        x-transition.opacity
+        class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div @click.away="showSettings = false" 
+            class="bg-gray-800 rounded-xl p-6 w-full max-w-md">
+            <h2 class="text-xl font-bold text-gray-100 mb-4">Cài đặt</h2>
+            
+            <!-- Các input điều chỉnh tham số -->
+            <div class="space-y-4">
+                <!-- Thời gian lặp audio - Range Slider -->
+                <div>
+                    <label class="block text-gray-300 mb-1">
+                        Thời gian lặp audio: <span x-text="tempSettings.repeatDelay" class="font-bold"></span>s
+                        <span x-show="tempSettings.repeatDelay == 0" class="text-blue-400 ml-2">(đã tắt tự động lặp)</span>
+                    </label>
+                    <input type="range" x-model="tempSettings.repeatDelay" min="0" max="10" step="1"
+                           class="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500">
+                    <div class="flex justify-between text-xs text-gray-400 mt-1">
+                        <span>0s</span>  <!-- Sửa lại label cho rõ nghĩa -->
+                        <span>10s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nút lưu -->
+            <div class="mt-6 flex justify-end gap-2">
+                <button @click="showSettings = false" 
+                        class="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-white">
+                    Hủy
+                </button>
+                <button @click="saveSettings()" 
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white">
+                    Lưu
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
